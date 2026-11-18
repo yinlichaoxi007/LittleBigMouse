@@ -29,7 +29,11 @@ SetupIconFile=..\LittleBigMouse.Ui\LittleBigMouse.Ui.Avalonia\Assets\lbm-logo.ic
 Compression=lzma2
 SolidCompression=yes
 OutputDir="."
-ArchitecturesInstallIn64BitMode=x64
+; x64compatible replaced the deprecated x64 value in 6.3: it installs in 64-bit
+; mode on x64 Windows *and* on an ARM64 one running the x64 build under emulation,
+; where {commonpf} must resolve to Program Files and not Program Files (x86).
+; Anything >= 6.3 and 7.x accepts it; only a pre-6.3 local ISCC would reject it.
+ArchitecturesInstallIn64BitMode=x64compatible
 OutputBaseFilename=LittleBigMouse_{#AppVer}
 ; Force-close the running app instead of asking the user: the Restart Manager's
 ; polite WM_CLOSE is treated as "minimize to tray" by the UI and ignored by the
