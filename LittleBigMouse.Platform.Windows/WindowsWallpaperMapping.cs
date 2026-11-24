@@ -61,10 +61,10 @@ internal static class WindowsWallpaperMapping
     /// </summary>
     static void RebindPaintedImages(MonitorsLayout layout)
     {
-        IDesktopWallpaper desktop;
+        IWallpaperDesktop desktop;
         try
         {
-            desktop = (IDesktopWallpaper)new DesktopWallpaperClass();
+            desktop = new DesktopWallpaperAdapter((IDesktopWallpaper)new DesktopWallpaperClass());
         }
         catch (Exception)
         {
@@ -73,17 +73,16 @@ internal static class WindowsWallpaperMapping
 
         if (!WallpaperSlotOrder.TryRead(desktop, out var slots)) return;
 
-        foreach (var (filed, painted) in WallpaperSlotOrder.Pair(slots))
+        foreach (var (painted, imagePath) in WallpaperSlotOrder.PreviewAssignments(slots))
         {
-            // An empty path is a solid colour; there is nothing to preview and the colour read
-            // above already stands.
-            if (filed.ImagePath is not { Length: > 0 }) continue;
-
             var source = layout.PhysicalSources
                 .FirstOrDefault(s => WallpaperSlotOrder.Covers(painted, s.Source.InPixel.Bounds));
 
             if (source is null) continue;
-            source.Source.WallpaperPath = filed.ImagePath;
+
+            // Written even when empty: an empty path is a solid colour and must clear the photo
+            // the device-path pass bound to this screen.
+            source.Source.WallpaperPath = imagePath;
         }
     }
 
